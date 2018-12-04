@@ -8,9 +8,8 @@ export default () =>{
     const observable = interval(1000).pipe(
         tap(x => displayLog("evt ", x))
     );
+    //output: [None]
 
     /** end of example code  */
 };
 
-
-//output: [None]
