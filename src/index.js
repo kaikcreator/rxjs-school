@@ -1,3 +1,3 @@
-import {example1, example2, example3, example4, example5, example6, example7} from './intro-to-rxjs';
+//import stuff
 
-example1();
+//run stuff
