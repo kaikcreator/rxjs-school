@@ -7,9 +7,18 @@ export default () => {
         observer.next('Hello');
         setTimeout(()=>{
             observer.next('World');
+            observer.complete();
         }, 2000);
     });
     
-    const subscribe = hello.subscribe(evt => displayLog(evt));
+    const observer = {
+        next: evt => displayLog(evt),
+        error: err => console.error("[ERR] - ", err),
+        complete: () => displayLog("[DONE]")
+    }
+
+    const subscribe = hello.subscribe(observer);
+    const subscribe2 = hello.subscribe(observer);
+    subscribe.unsubscribe();
     /** end coding */
 }
