@@ -5,17 +5,21 @@ import { take } from 'rxjs/operators';
 export default () =>{
     /** example code here */
 
-    function myInterval(ms){
+    function my5sInterval(ms){
         return Observable.create((observer) =>{
             let count = 0;
-            setInterval(()=>{
+            const id = setInterval(()=>{
                 observer.next(count);
                 count++;
+                if(count >=5 ){ 
+                    clearInterval(id); 
+                    observer.complete();
+                }
             }, ms);
         });
     }
 
-    const observable = myInterval(1000).pipe(take(4));
+    const observable = my5sInterval(1000);
 
     const observer = {
         next: x => console.log(x),
