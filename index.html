@@ -6,18 +6,35 @@
         body{
             padding-left: 20px;
         }
+        .container{
+            display: flex;
+            flex-wrap: wrap;
+        }
         #log-container{
-            padding: 20px;
             font-size: 20px;
+            flex-grow: 1;
+            width: 150px;
         }
         #log-container > div{
             margin-bottom: 10px;
         }
+        #grid{
+            height: 500px;
+            width: 500px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            border: #AAA 1px solid;
+            flex-shrink: 0;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QAAAAAAAD5Q7t/AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4wECDC4GIBN3ygAAALRJREFUeNrt3EERACAIRUF0LED/kETACp5xXwNm519Z3d0xoKqacEbsEBABASIgQAQEiIAAERABASIgQAQEiIAAERABASIgQAQEiIAAERABASIgQAQEiIAAERABASIgQAQEiIAAERABAaLHzpRPbJlpIQICRECACIiAABEQIAICRECACIiAABEQIAICRECACIiAABEQIAICRECACIiAABEQIAICRECACIiAABEQIAICRED+6gIWHgqTCjDh1wAAAABJRU5ErkJggg==');            
+        }
     </style>
   </head>
   <body>
-    <h1>See the output below</h1>
-    <div id="log-container"></div>
+    <h1>Click somewhere in the grid</h1>
+    <div class="container">
+        <div id="grid"></div>
+        <div id="log-container"></div>
+    </div>
     <script src="main.js"></script>
   </body>
 </html>
