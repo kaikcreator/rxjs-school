@@ -3,38 +3,40 @@
   <head>
     <title>RxJS School</title>
     <style>
-        body{
-            padding-left: 20px;
+        #scrollable-space{
+            height: 4000px;
         }
-        .container{
-            display: flex;
-            flex-wrap: wrap;
-        }
+
         #log-container{
-            font-size: 20px;
-            flex-grow: 1;
-            width: 150px;
+            position: fixed;
+            top: 40px;
+            right: 20px;
         }
-        #log-container > div{
-            margin-bottom: 10px;
+        
+        #progress-bar {
+          position: fixed;
+          top: 0px;
+          left: 0px;
+          right: 0px;
+          width: 0px;
+          height: 12px;
+          background-color: #ff3535;
         }
-        #grid{
-            height: 500px;
-            width: 500px;
-            margin-right: 10px;
-            margin-bottom: 10px;
-            border: #AAA 1px solid;
-            flex-shrink: 0;
-            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QAAAAAAAD5Q7t/AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4wECDC4GIBN3ygAAALRJREFUeNrt3EERACAIRUF0LED/kETACp5xXwNm519Z3d0xoKqacEbsEBABASIgQAQEiIAAERABASIgQAQEiIAAERABASIgQAQEiIAAERABASIgQAQEiIAAERABASIgQAQEiIAAERABAaLHzpRPbJlpIQICRECACIiAABEQIAICRECACIiAABEQIAICRECACIiAABEQIAICRECACIiAABEQIAICRECACIiAABEQIAICRED+6gIWHgqTCjDh1wAAAABJRU5ErkJggg==');            
+
+        #footer{
+            width: 100%;
+            text-align: center;
+            margin-bottom: 40px;
         }
-    </style>
+      </style>
   </head>
   <body>
-    <h1>Click somewhere in the grid</h1>
-    <div class="container">
-        <div id="grid"></div>
-        <div id="log-container"></div>
-    </div>
+    <h1>Do some scroll</h1>
+    <div id="progress-bar"></div>
+    <div id="log-container"></div>
+    <div id="scrollable-space"></div>
+    <div id="footer">You've reached the end of the page</div>
+
     <script src="main.js"></script>
   </body>
 </html>
