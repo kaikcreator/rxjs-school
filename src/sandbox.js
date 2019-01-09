@@ -1,6 +1,6 @@
 import { displayLog } from './utils';
 import { fromEvent } from 'rxjs';
-import { map, takeWhile, tap } from 'rxjs/operators';
+import { map, takeWhile, tap, startWith, endWith } from 'rxjs/operators';
 
 export default () => {
     /** start coding */
@@ -12,6 +12,8 @@ export default () => {
         ]),
         takeWhile( ([col, row]) => col != 0 ),
         tap(val => console.log(`cell: [${val}]`)),
+        startWith("grid dimensions:", "10x10"),
+        endWith("game finished", "bye!")
     );
 
     const subscription = click$.subscribe(data => displayLog(data));
