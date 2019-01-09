@@ -12,6 +12,8 @@ export default () => {
         ]),
         takeWhile( ([col, row]) => col != 0 ),
         tap(val => console.log(`cell: [${val}]`)),
+        map(([col, row]) => col+row),
+        tap(val => console.log('sum of col + row is:', val)),
     );
 
     const subscription = click$.subscribe(data => displayLog(data));
