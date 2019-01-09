@@ -1,6 +1,6 @@
 import { displayLog } from './utils';
 import { fromEvent } from 'rxjs';
-import { map, takeWhile, tap } from 'rxjs/operators';
+import { map, takeWhile, tap, scan } from 'rxjs/operators';
 
 export default () => {
     /** start coding */
@@ -12,9 +12,15 @@ export default () => {
         ]),
         takeWhile( ([col, row]) => col != 0 ),
         tap(val => console.log(`cell: [${val}]`)),
+        scan((accumulated, current) => {
+            return {
+                clicks: accumulated.clicks + 1,
+                cells: [...accumulated.cells, current]
+            }
+        }, {clicks:0, cells:[]}),
     );
 
-    const subscription = click$.subscribe(data => displayLog(data));
+    const subscription = click$.subscribe(data => displayLog(`${data.clicks} clicks: ${JSON.stringify(data.cells)}`));
 
     /** end coding */
 }
