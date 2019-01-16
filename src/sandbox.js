@@ -4,8 +4,11 @@ import { map, tap } from 'rxjs/operators';
 
 export default () => {
     /** start coding */
+    
     const progressBar = document.getElementById('progress-bar');
     const docElement = document.documentElement;
+
+    //function to update progress bar width on view
     const updateProgressBar = (percentage) => {
         progressBar.style.width = `${percentage}%`;
     }
@@ -26,6 +29,7 @@ export default () => {
 
     //subscribe to scroll progress to paint a progress bar
     const subscription = scrollProgress$.subscribe(updateProgressBar);
+
 
     /** end coding */
 }
