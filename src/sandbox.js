@@ -31,6 +31,7 @@ export default () => {
     //subscribe to scroll progress to paint a progress bar
     const subscription = scrollProgress$.subscribe(updateProgressBar);
 
+    //subscribe to display scroll progress percentage
     const subscription2 = scrollProgress$.subscribe(
         val => updateDisplay(`${ Math.floor(val) } %`)
     );
