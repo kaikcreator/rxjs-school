@@ -3,6 +3,11 @@
   <head>
     <title>RxJS School</title>
     <style>
+        #drawboard{
+          position:absolute;
+          left:40px;
+          border:2px solid;
+        }
         #log-container{
             position: fixed;
             top: 40px;
@@ -11,8 +16,8 @@
       </style>
   </head>
   <body>
-    <h1>Write something</h1>
-    <input id="input-box" type="text">
+    <h1>Draw a line</h1>
+    <canvas id="drawboard" width="400" height="400"></canvas>
     <div id="log-container"></div>
     <script src="main.js"></script>
   </body>
