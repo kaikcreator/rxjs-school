@@ -9,11 +9,39 @@
             right: 20px;
             max-width: 320px;
         }
+        #form{
+          display: flex;
+          flex-direction: column;
+          width: 200px;
+          margin-left: 20px;
+        }
+
+        #form>div{
+          margin-bottom: 20px;
+          display: flex;
+        }
+        #form>div>*{
+          flex-grow: 1;
+        }        
       </style>
   </head>
   <body>
-    <h1>Get some comments</h1>
-    <button id="btn">Click me!</button>
+    <h1>Submit form</h1>
+    <form id="form">
+      <div>
+          <label for="username">Name: </label>
+          <input type="text" name="name" >
+      </div>
+      <div>
+          <label for="username">Email: </label>
+          <input type="email" name="email" >
+      </div>
+      <div>
+          <label for="username">Phone: </label>
+          <input type="tel" name="phone" >
+      </div>            
+      <button id="btn" type="button">Add contact</button>
+    </form>
     <div id="log-container"></div>
     <script src="main.js"></script>
   </body>
