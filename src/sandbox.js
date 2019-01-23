@@ -1,6 +1,6 @@
 import { updateDisplay } from './utils';
-import { fromEvent } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { fromEvent} from 'rxjs';
+import { map, tap, delay, bufferTime } from 'rxjs/operators';
 
 export default () => {
     /** start coding */
@@ -24,7 +24,10 @@ export default () => {
         map(evt => {
             const docHeight = docElement.scrollHeight - docElement.clientHeight;
             return (evt / docHeight) * 100;
-        })
+        }),
+        //delay(500)
+        bufferTime(300, 1000),
+        tap(evt => console.log("[buffer]: ", evt))
     )
 
     //subscribe to scroll progress to paint a progress bar
