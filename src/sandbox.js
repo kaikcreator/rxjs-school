@@ -1,7 +1,7 @@
 import { updateDisplay, displayLog } from './utils';
 import { api } from './api';
 import { concat, fromEvent } from 'rxjs';
-import { map, endWith, tap, mergeAll, mergeMap } from 'rxjs/operators';
+import { map, endWith, tap, mergeMap } from 'rxjs/operators';
 
 export default () => {
     /** start coding */
@@ -17,12 +17,10 @@ export default () => {
         const comment4$ = api.getComment(4);
 
         //subscribe to all the observables to get and display comments
-        concat(comment1$, comment2$, comment3$, comment4$).pipe(
+        return concat(comment1$, comment2$, comment3$, comment4$).pipe(
             map(JSON.stringify),
             endWith('--------//--------')
-        ).subscribe(data =>{
-            displayLog(data);
-        })
+        )
     }
 
     const observable2$ = api.getComment(1).pipe(
@@ -30,10 +28,8 @@ export default () => {
     );
 
     /** get comments on button click */
-    fromEvent(button, 'click').pipe(
-        // map(evt => observable2$),
-        // mergeAll(),        
-        mergeMap(evt => observable2$),
+    fromEvent(button, 'click').pipe(      
+        mergeMap(evt => getComments()),
         tap(console.log),
     ).subscribe(displayLog);
 
