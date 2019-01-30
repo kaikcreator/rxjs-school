@@ -1,6 +1,6 @@
 import { updateDisplay, displayLog } from './utils';
 import { api } from './api';
-import { concat, forkJoin, fromEvent, of } from 'rxjs';
+import { concat, fromEvent } from 'rxjs';
 import { map, endWith } from 'rxjs/operators';
 
 export default () => {
@@ -17,7 +17,7 @@ export default () => {
         const comment4$ = api.getComment(4);
 
         //subscribe to all the observables to get and display comments
-        forkJoin(comment1$, comment2$, comment3$, comment4$).pipe(
+        concat(comment1$, comment2$, comment3$, comment4$).pipe(
             map(JSON.stringify),
             endWith('--------//--------')
         ).subscribe(data =>{
