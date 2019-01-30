@@ -1,7 +1,7 @@
 import { updateDisplay, displayLog } from './utils';
 import { api } from './api';
-import { fromEvent, from } from 'rxjs';
-import { map, scan, tap, mergeMap, concatMap } from 'rxjs/operators';
+import { fromEvent } from 'rxjs';
+import { map, scan, tap, concatMap } from 'rxjs/operators';
 
 export default () => {
     /** start coding */
@@ -11,8 +11,7 @@ export default () => {
     /** get comments on button click */
     fromEvent(button, 'click').pipe(
         scan((acc, evt) => acc + 1, 0),            
-        concatMap(page => api.getCommentsList(page)),
-        mergeMap(comments => from(comments)),
+        concatMap(id => api.getComment(id)),
         map(JSON.stringify),
         tap(console.log),
     ).subscribe(displayLog);
