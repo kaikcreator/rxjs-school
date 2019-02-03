@@ -1,6 +1,6 @@
 import { displayLog } from './utils';
-import { fromEvent, of, combineLatest, BehaviorSubject, timer, Observable, throwError } from 'rxjs';
-import { map, withLatestFrom, startWith, filter, tap, scan } from 'rxjs/operators';
+import { fromEvent, combineLatest, BehaviorSubject, timer } from 'rxjs';
+import { map, withLatestFrom, filter, tap, scan } from 'rxjs/operators';
 
 export default () => {
     /** start coding */
@@ -9,14 +9,11 @@ export default () => {
     const cellWidth = 50;
 
     
-    //initial game state
-    const initialGameState = {
+    //proxy subject needed to break cicrcular dependency.
+    const gameState$ = new BehaviorSubject({
         board: Array(gridSize).fill().map(() => Array(gridSize).fill(0)),
         nextPlayer: 1 //1 is user, 2 is computer
-    };
-    //proxy subject needed to break cicrcular dependency
-    const gameState$ = new BehaviorSubject(initialGameState);
-
+    });
 
     //user input
     const click$ = fromEvent(grid, 'click').pipe(
@@ -26,6 +23,8 @@ export default () => {
         }})
     );
 
+    //this observable return only computer valid clicks
+    const computerClick$ = new BehaviorSubject({x:0, y:0});    
 
     //this observable return only user valid clicks
     const userClick$ = click$.pipe(
@@ -38,9 +37,8 @@ export default () => {
         map(([click, state]) => click),        
     )
 
-    //this observable return only computer valid clicks
-    const computerClick$ = new BehaviorSubject({x:0, y:0});
-    const computeComputerClick = (board) =>{
+    //pure function to find out empty cells
+    const getEmptyCells = (board) =>{
         const emptyCells = [];
         //detect empty cells
         for(let x = 0; x < board.length; x++){
@@ -50,62 +48,57 @@ export default () => {
                 }
             }
         };
-        //if emptyCells is empty, throw error
-        if(emptyCells.length == 0){
-            throwError(new Error("no empty cells"));
-        }
+        return emptyCells;        
+    }
+
+    //side efect that launches a valid computer click
+    const simulateComputerClick = (board) =>{
+        const emptyCells = getEmptyCells(board);
         //pick random cell between the empty ones
         const randomCell = Math.floor(Math.random() * emptyCells.length);
         //delay emission of computer click with coordinates of valid random cell selected
-        timer(5000).subscribe(()=>computerClick$.next(emptyCells[randomCell]));
+        timer(1000).subscribe(()=>computerClick$.next(emptyCells[randomCell]));
     }
 
+    //pure method to update the game state based on current click
     const updateGameState = (gameState, playersClick) =>{
-        //if no players click, return original state (init)
-        if(!playersClick){
-            return gameState;
-        }
         let updatedBoard = [...gameState.board];
         //get move from expected player
         const move = playersClick[gameState.nextPlayer - 1];
         //update board with new move
         updatedBoard[move.y][move.x] = gameState.nextPlayer;
+        //find out empty cells
+        const haveEmptyCells = getEmptyCells(updatedBoard).length == 0 ? false : true;
         //return game state with updated board and updated nextPlayer
         return {
             board: updatedBoard,
-            nextPlayer: gameState.nextPlayer == 1 ? 2 : 1 
+            nextPlayer: gameState.nextPlayer == 1 ? 2 : 1,
+            finished: !haveEmptyCells
         };
     }
 
 
-    //at this point, the userClick or computerClick is expected to be valid
+    //main observable with the game logic.
     const game$ = combineLatest(userClick$, computerClick$).pipe(
         //the initial sample makes scan to init game
-        tap(([user, computer])=> {console.log("u: ", user, " - c:", computer);} ),
+        tap( ([user, computer]) => console.log("u: ", user, " - c:", computer) ),
         //update gameState (board and turn)
-        scan(updateGameState,gameState$.value),
-        //propagate updated game state with proxy subject
-        tap(state => {
-            gameState$.next(state);
-        }),
+        scan( updateGameState, gameState$.value ),
+        //propagate updated game state with proxy subject, so userClick can use newest state 
+        tap( state => gameState$.next(state) ),
         //check if game is finished, and therefore complete observable(with win/lose state)
-        //TODO
+        tap(state => {if(state.finished){
+            console.log("FINISHED");
+            gameState$.complete();
+        }}),
         tap(console.log),
         //if the move was coming from user, then schedule computer click
         tap((state) => {
             if(state.nextPlayer == 2){
-                computeComputerClick(state.board)
+                simulateComputerClick(state.board)
             }
         })
     );
-    
-
-    // const game$ = of(gameState).pipe(
-    //     switchMap((state) => state.nextPlayer == 1 ? 
-    //     userTurn$(state) : 
-    //     computer$.withLatestFrom(state)),
-    // )
-
 
 
     const subscription = game$.subscribe(data => displayLog(data));
