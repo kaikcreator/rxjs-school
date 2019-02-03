@@ -1,6 +1,6 @@
 import { gameState$ } from './gameState';
 import { userMove$ } from './userMove';
-import { simulateComputerTurn, computerMove$, closeComputerStream} from './computerMove';
+import { simulateComputerTurn, computerMove$} from './computerMove';
 import { combineLatest, of } from 'rxjs';
 import { tap, scan, concatMap } from 'rxjs/operators';
 
@@ -71,7 +71,6 @@ export const game$ = combineLatest(userMove$, computerMove$).pipe(
     tap(state => {
         if(state.finished){
             gameState$.complete();
-            closeComputerStream();
         }
     }),
     //if the move was coming from user, then schedule computer click
