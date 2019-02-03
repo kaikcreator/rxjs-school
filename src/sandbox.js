@@ -1,6 +1,6 @@
 import { displayLog } from './utils';
-import { fromEvent, interval } from 'rxjs';
-import { map, /*first, take,*/ takeWhile, mapTo, startWith, switchMap } from 'rxjs/operators';
+import { fromEvent, of, combineLatest, BehaviorSubject, timer, Observable, throwError } from 'rxjs';
+import { map, withLatestFrom, startWith, filter, tap, scan } from 'rxjs/operators';
 
 export default () => {
     /** start coding */
@@ -8,35 +8,124 @@ export default () => {
     const gridSize = 3;
     const cellWidth = 50;
 
-    //empty grid
-    const gameState = {
+    
+    //initial game state
+    const initialGameState = {
         board: Array(gridSize).fill().map(() => Array(gridSize).fill(0)),
-        nextPlayer: 1 //1 or 2
-    }
+        nextPlayer: 1 //1 is user, 2 is computer
+    };
+    //proxy subject needed to break cicrcular dependency
+    const gameState$ = new BehaviorSubject(initialGameState);
 
-    //user selection
+
+    //user input
     const click$ = fromEvent(grid, 'click').pipe(
         map(val =>  { return {
-            nextPlayer: 'user',
-            col: Math.floor(val.offsetX/cellWidth), 
-            row: Math.floor(val.offsetY/cellWidth)
+            x: Math.floor(val.offsetX/cellWidth), 
+            y: Math.floor(val.offsetY/cellWidth)
         }})
     );
 
-    //computer selection
-    const computer$ = interval(1000).pipe(
-        //return random cell
-        map( val => [Math.floor(Math.random()*3)][Math.floor(Math.random()*3)] )
+
+    //this observable return only user valid clicks
+    const userClick$ = click$.pipe(
+        withLatestFrom(gameState$),
+        //allow only clicks when it is the user turn
+        filter(([click, state]) => state.nextPlayer == 1),
+        //check that it is a valid move
+        filter(([click, state]) => state.board[click.y][click.x] == 0),
+        //return only the click value
+        map(([click, state]) => click),        
     )
 
-    //
-    const game$ = merge(reducer1, reducer2, ...).pipe(
-        startWith(gameState),
-        switchMap(({nextPlayer}) => nextPlayer == 1 ? click$ : computer$),
-        scan((acc/* acc is the state */,reducer) => reducer(acc))
-    )
+    //this observable return only computer valid clicks
+    const computerClick$ = new BehaviorSubject({x:0, y:0});
+    const computeComputerClick = (board) =>{
+        const emptyCells = [];
+        //detect empty cells
+        for(let x = 0; x < board.length; x++){
+            for(let y=0; y < board[0].length; y++){
+                if(board[y][x] == 0){
+                    emptyCells.push({x, y})
+                }
+            }
+        };
+        //if emptyCells is empty, throw error
+        if(emptyCells.length == 0){
+            throwError(new Error("no empty cells"));
+        }
+        //pick random cell between the empty ones
+        const randomCell = Math.floor(Math.random() * emptyCells.length);
+        //delay emission of computer click with coordinates of valid random cell selected
+        timer(5000).subscribe(()=>computerClick$.next(emptyCells[randomCell]));
+    }
 
-    const subscription = click$.subscribe(data => displayLog(data));
+    const updateGameState = (gameState, playersClick) =>{
+        //if no players click, return original state (init)
+        if(!playersClick){
+            return gameState;
+        }
+        let updatedBoard = [...gameState.board];
+        //get move from expected player
+        const move = playersClick[gameState.nextPlayer - 1];
+        //update board with new move
+        updatedBoard[move.y][move.x] = gameState.nextPlayer;
+        //return game state with updated board and updated nextPlayer
+        return {
+            board: updatedBoard,
+            nextPlayer: gameState.nextPlayer == 1 ? 2 : 1 
+        };
+    }
+
+
+    //at this point, the userClick or computerClick is expected to be valid
+    const game$ = combineLatest(userClick$, computerClick$).pipe(
+        //the initial sample makes scan to init game
+        tap(([user, computer])=> {console.log("u: ", user, " - c:", computer);} ),
+        //update gameState (board and turn)
+        scan(updateGameState,gameState$.value),
+        //propagate updated game state with proxy subject
+        tap(state => {
+            gameState$.next(state);
+        }),
+        //check if game is finished, and therefore complete observable(with win/lose state)
+        //TODO
+        tap(console.log),
+        //if the move was coming from user, then schedule computer click
+        tap((state) => {
+            if(state.nextPlayer == 2){
+                computeComputerClick(state.board)
+            }
+        })
+    );
+    
+
+    // const game$ = of(gameState).pipe(
+    //     switchMap((state) => state.nextPlayer == 1 ? 
+    //     userTurn$(state) : 
+    //     computer$.withLatestFrom(state)),
+    // )
+
+
+
+    const subscription = game$.subscribe(data => displayLog(data));
 
     /** end coding */
+
+    // OTHER REACTIVE APPROACH USING REDUCERS
+    // const userTurnReducer = click$.pipe(
+    //     map(userClick => (state) => {
+    //         //return old state if it's not the users turn
+    //         if(state.nextPlayer != 1){ return state;} 
+
+    //         //return old state if it's not a valid move
+    //         if(state.board[userClick.x][userClick.y] != 0){ return state;}
+    //     })
+    // )
+    //
+    // const game$ = merge(userTurnReducer, reducer2, ...).pipe(
+    //     startWith(gameState),
+    //     switchMap(({nextPlayer}) => nextPlayer == 1 ? click$ : computer$),
+    //     scan((acc/* acc is the state */,reducer) => reducer(acc))
+    // )        
 }
