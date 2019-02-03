@@ -10,5 +10,9 @@ export const simulateComputerTurn = (validCells) =>{
     //pick random cell between the empty ones
     const randomCell = Math.floor(Math.random() * validCells.length);
     //delay emission of computer click with coordinates of valid random cell selected
-    timer(1000).subscribe(()=>computerMove$.next(validCells[randomCell]));
+    timer(500).subscribe(()=>computerMove$.next(validCells[randomCell]));
+}
+
+export const closeComputerStream = ()=>{
+    computerMove$.complete();
 }

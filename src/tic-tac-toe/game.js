@@ -1,8 +1,8 @@
 import { gameState$ } from './gameState';
 import { userMove$ } from './userMove';
-import { simulateComputerTurn, computerMove$} from './computerMove';
-import { combineLatest } from 'rxjs';
-import { tap, scan } from 'rxjs/operators';
+import { simulateComputerTurn, computerMove$, closeComputerStream} from './computerMove';
+import { combineLatest, of } from 'rxjs';
+import { tap, scan, concatMap } from 'rxjs/operators';
 
 //pure function to find out empty cells
 export const getEmptyCells = (board) =>{
@@ -27,12 +27,35 @@ const updateGameState = (gameState, playersClick) =>{
     updatedBoard[move.y][move.x] = gameState.nextPlayer;
     //find out empty cells
     const haveEmptyCells = getEmptyCells(updatedBoard).length == 0 ? false : true;
+    let finished = !haveEmptyCells;
+    const winner = findOutWinner(updatedBoard);
+    if(winner){
+        finished = true;
+    }
     //return game state with updated board and updated nextPlayer
     return {
         board: updatedBoard,
         nextPlayer: gameState.nextPlayer == 1 ? 2 : 1,
-        finished: !haveEmptyCells
+        finished: finished,
+        winner: winner
     };
+}
+
+const findOutWinner = board =>{
+    //check rows and cols
+    for (let i=0;i<3;i++){
+        if( (board[i][0] && board[i][0] == board[i][1] && board[i][1] == board[i][2]) || 
+            (board[0][i] && board[0][i] == board[1][i] && board[1][i] == board[2][i]) ){
+            return board[i][0];
+        }
+    }
+    //check diagonals
+    if( (board[0][0] && board[0][0] == board[1][1] && board[1][1] == board[2][2]) || 
+        (board[2][0] && board[2][0] == board[1][1] && board[1][1] == board[0][2]) ){
+        return board[0][0];
+    }
+
+    return null;  
 }
 
 
@@ -45,15 +68,19 @@ export const game$ = combineLatest(userMove$, computerMove$).pipe(
     //propagate updated game state with proxy subject, so userClick can use newest state 
     tap( state => gameState$.next(state) ),
     //check if game is finished, and therefore complete observable(with win/lose state)
-    tap(state => {if(state.finished){
-        console.log("FINISHED");
-        gameState$.complete();
-    }}),
-    tap(({board}) => console.log(board)),
+    tap(state => {
+        if(state.finished){
+            gameState$.complete();
+            closeComputerStream();
+        }
+    }),
     //if the move was coming from user, then schedule computer click
     tap((state) => {
-        if(state.nextPlayer == 2){
+        if(state.nextPlayer == 2 && !state.finished){
             simulateComputerTurn(getEmptyCells(state.board))
         }
-    })
+    }),
+    //as takeWhile is not inclusive, use concatMap to end game
+    concatMap(state => state.finished ? of(state, null) : of(state)),
+    tap(console.log),
 );

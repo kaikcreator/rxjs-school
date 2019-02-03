@@ -48,6 +48,8 @@ export const drawBoard = () =>{
 
 //draws game movements
 export const drawGame = (gameState) =>{
+    if(!gameState)
+        return;
     for(let x = 0; x<3; x++){
         for(let y = 0; y<3; y++){
             const cell = gameState.board[y][x];

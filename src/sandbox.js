@@ -9,23 +9,7 @@ export default () => {
 
     drawBoard();
     
-    const subscription = game$.subscribe(data => drawGame(data));
+    const subscription = game$.subscribe(data => drawGame(data), 
+    err => console.log("error: ", err), ()=> console.log("COMPLETE"));
     /** end coding */
 }
-
-    // OTHER REACTIVE APPROACH USING REDUCERS
-    // const userTurnReducer = click$.pipe(
-    //     map(userClick => (state) => {
-    //         //return old state if it's not the users turn
-    //         if(state.nextPlayer != 1){ return state;} 
-
-    //         //return old state if it's not a valid move
-    //         if(state.board[userClick.x][userClick.y] != 0){ return state;}
-    //     })
-    // )
-    //
-    // const game$ = merge(userTurnReducer, reducer2, ...).pipe(
-    //     startWith(gameState),
-    //     switchMap(({nextPlayer}) => nextPlayer == 1 ? click$ : computer$),
-    //     scan((acc/* acc is the state */,reducer) => reducer(acc))
-    // )  
