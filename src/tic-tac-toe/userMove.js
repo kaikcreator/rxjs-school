@@ -1,13 +1,13 @@
 import { gameState$ } from './gameState';
-import { CELL_WIDTH } from './game';
+import { canvas, CELL_SIZE } from './draw';
 import { fromEvent } from 'rxjs';
 import { map, withLatestFrom, filter} from 'rxjs/operators';
 
 //observable with user input
-const click$ = fromEvent(grid, 'click').pipe(
+const click$ = fromEvent(canvas, 'click').pipe(
     map(val =>  { return {
-        x: Math.floor(val.offsetX/CELL_WIDTH), 
-        y: Math.floor(val.offsetY/CELL_WIDTH)
+        x: Math.floor(val.offsetX/CELL_SIZE), 
+        y: Math.floor(val.offsetY/CELL_SIZE)
     }})
 );    
 

@@ -3,38 +3,22 @@
   <head>
     <title>RxJS School</title>
     <style>
-        body{
-            padding-left: 20px;
-        }
-        .container{
-            display: flex;
-            flex-wrap: wrap;
+        #drawboard{
+          position:absolute;
+          left:40px;
+          border:2px solid;
         }
         #log-container{
-            font-size: 20px;
-            flex-grow: 1;
-            width: 150px;
+            position: fixed;
+            top: 40px;
+            right: 20px;
         }
-        #log-container > div{
-            margin-bottom: 10px;
-        }
-        #grid{
-            height: 150px;
-            width: 150px;
-            margin-right: 10px;
-            margin-bottom: 10px;
-            border: #AAA 1px solid;
-            flex-shrink: 0;
-            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QAAAAAAAD5Q7t/AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4wECDC4GIBN3ygAAALRJREFUeNrt3EERACAIRUF0LED/kETACp5xXwNm519Z3d0xoKqacEbsEBABASIgQAQEiIAAERABASIgQAQEiIAAERABASIgQAQEiIAAERABASIgQAQEiIAAERABASIgQAQEiIAAERABAaLHzpRPbJlpIQICRECACIiAABEQIAICRECACIiAABEQIAICRECACIiAABEQIAICRECACIiAABEQIAICRECACIiAABEQIAICRED+6gIWHgqTCjDh1wAAAABJRU5ErkJggg==');            
-        }
-    </style>
+      </style>
   </head>
   <body>
-    <h1>Click somewhere in the grid</h1>
-    <div class="container">
-        <div id="grid"></div>
-        <div id="log-container"></div>
-    </div>
+    <h1>Draw a line</h1>
+    <canvas id="drawboard" width="500" height="500"></canvas>
+    <div id="log-container"></div>
     <script src="main.js"></script>
   </body>
 </html>
