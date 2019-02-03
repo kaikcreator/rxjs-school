@@ -1,12 +1,15 @@
 import { displayLog } from './utils';
 import { game$ } from './tic-tac-toe/game';
+import { drawBoard, drawGame } from './tic-tac-toe/draw'; 
 
 
 export default () => {
     /** start coding */
-    const grid = document.getElementById('grid');
+
+
+    drawBoard();
     
-    const subscription = game$.subscribe(data => displayLog(data));
+    const subscription = game$.subscribe(data => drawGame(data));
     /** end coding */
 }
 

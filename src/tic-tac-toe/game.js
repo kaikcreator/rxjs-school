@@ -4,9 +4,6 @@ import { simulateComputerTurn, computerMove$} from './computerMove';
 import { combineLatest } from 'rxjs';
 import { tap, scan } from 'rxjs/operators';
 
-//size of each cell
-export const CELL_WIDTH = 50;
-
 //pure function to find out empty cells
 export const getEmptyCells = (board) =>{
     const emptyCells = [];
