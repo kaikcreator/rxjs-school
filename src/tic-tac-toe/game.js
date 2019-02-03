@@ -1,8 +1,8 @@
 import { gameState$ } from './gameState';
 import { userMove$ } from './userMove';
 import { simulateComputerTurn, computerMove$} from './computerMove';
-import { combineLatest, of } from 'rxjs';
-import { tap, scan, concatMap } from 'rxjs/operators';
+import { combineLatest } from 'rxjs';
+import { tap, scan, takeWhile } from 'rxjs/operators';
 
 //pure function to find out empty cells
 export const getEmptyCells = (board) =>{
@@ -79,7 +79,7 @@ export const game$ = combineLatest(userMove$, computerMove$).pipe(
             simulateComputerTurn(getEmptyCells(state.board))
         }
     }),
-    //as takeWhile is not inclusive, use concatMap to end game
-    concatMap(state => state.finished ? of(state, null) : of(state)),
+    //emit samples while not finished
+    takeWhile(({finished}) => finished == false, true),
     tap(console.log),
 );
