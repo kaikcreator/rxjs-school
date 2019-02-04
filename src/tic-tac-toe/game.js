@@ -2,7 +2,7 @@ import { gameState$ } from './gameState';
 import { userMove$ } from './userMove';
 import { simulateComputerTurn, computerMove$} from './computerMove';
 import { combineLatest } from 'rxjs';
-import { tap, scan, takeWhile } from 'rxjs/operators';
+import { tap, scan, takeWhile, startWith } from 'rxjs/operators';
 
 //pure function to find out empty cells
 export const getEmptyCells = (board) =>{
@@ -17,9 +17,33 @@ export const getEmptyCells = (board) =>{
     };
     return emptyCells;        
 }
+
+//pure function to find out which player have won (if any)
+const findOutWinner = board =>{
+    //check rows and cols
+    for (let i=0;i<3;i++){
+        if( (board[i][0] && board[i][0] == board[i][1] && board[i][1] == board[i][2]) ){
+            return board[i][0];
+        }
+        else if ( (board[0][i] && board[0][i] == board[1][i] && board[1][i] == board[2][i]) ){
+                return board[0][i];
+        }
+    }
+    //check diagonals
+    if( (board[0][0] && board[0][0] == board[1][1] && board[1][1] == board[2][2]) || 
+        (board[2][0] && board[2][0] == board[1][1] && board[1][1] == board[0][2]) ){
+        return board[1][1];
+    }
+
+    return null;  
+}
     
 //pure method to update the game state based on current click
 const updateGameState = (gameState, playersClick) =>{
+    //if no input, return current gameState (or initial)
+    if(!playersClick){
+        return gameState;
+    }
     let updatedBoard = [...gameState.board];
     //get move from expected player
     const move = playersClick[gameState.nextPlayer - 1];
@@ -41,30 +65,12 @@ const updateGameState = (gameState, playersClick) =>{
     };
 }
 
-const findOutWinner = board =>{
-    //check rows and cols
-    for (let i=0;i<3;i++){
-        if( (board[i][0] && board[i][0] == board[i][1] && board[i][1] == board[i][2]) ){
-            return board[i][0];
-        }
-        else if ( (board[0][i] && board[0][i] == board[1][i] && board[1][i] == board[2][i]) ){
-                return board[0][i];
-        }
-    }
-    //check diagonals
-    if( (board[0][0] && board[0][0] == board[1][1] && board[1][1] == board[2][2]) || 
-        (board[2][0] && board[2][0] == board[1][1] && board[1][1] == board[0][2]) ){
-        return board[1][1];
-    }
-
-    return null;  
-}
-
 
 //main observable with the game logic.
 export const game$ = combineLatest(userMove$, computerMove$).pipe(
-    //the initial sample makes scan to init game
     tap( ([user, computer]) => console.log("u: ", user, " - c:", computer) ),
+    //the initial sample allows drawing the board
+    startWith(null),    
     //update gameState (board and turn)
     scan( updateGameState, gameState$.value ),
     //propagate updated game state with proxy subject, so userClick can use newest state 

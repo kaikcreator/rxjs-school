@@ -37,15 +37,24 @@ const drawPlayerIconAtCell = (playerId, x, y) => {
     drawImage(data, x*CELL_SIZE, y*CELL_SIZE);
 }
 
-//draws empty board
-export const drawBoard = () =>{
-    //clear board
+//clear canvas
+const clearCanvas = () =>{
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+//draws canvas background
+const drawBackground = () =>{
     //paint board background
     ctx.beginPath();
     ctx.rect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#2196F3";
     ctx.fill();
+}
+
+//draws empty board
+const drawBoard = () =>{
+    clearCanvas();
+    drawBackground();
     //paint board lines
     for(let i=1; i< 3; i++){
         drawLine( { x:i*CELL_SIZE, y:0 }, { x:i*CELL_SIZE, y:BOARD_SIZE } );
@@ -53,10 +62,21 @@ export const drawBoard = () =>{
     }
 }
 
+export const writeMessage = (message) => {
+    ctx.globalAlpha = 0.8;
+    drawBackground();
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#1976D2";
+    ctx.font = `${BOARD_SIZE/6}px Arial`;
+    ctx.fillText(message, BOARD_SIZE/2, BOARD_SIZE/2); 
+}
+
 //draws game movements
 export const drawGame = (gameState) =>{
-    if(!gameState)
+    if(!gameState){
         return;
+    }
+    drawBoard();
     for(let x = 0; x<3; x++){
         for(let y = 0; y<3; y++){
             const cell = gameState.board[y][x];
