@@ -9,7 +9,15 @@ export default () => {
 
     drawBoard();
     
-    const subscription = game$.subscribe(data => drawGame(data), 
-    err => console.log("error: ", err), ()=> console.log("COMPLETE"));
+    const subscription = game$.subscribe(gameState => {
+        drawGame(gameState);
+        if(gameState.winner){
+            console.log(gameState.winner == 1 ? 'you win' : 'you lose');
+        }
+        else if(gameState.finished){
+            console.log("draws");
+        }
+    }, 
+    err => console.log("error: ", err), data => console.log("COMPLETE"));
     /** end coding */
 }
