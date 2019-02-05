@@ -3,20 +3,20 @@
   <head>
     <title>RxJS School</title>
     <style>
-        body{
-            padding-left: 20px;
+        #drawboard{
+          position:absolute;
+          left:40px;
         }
         #log-container{
-            padding: 20px;
-            font-size: 20px;
-        }
-        #log-container > div{
-            margin-bottom: 10px;
-        }
-    </style>
+            position: fixed;
+            top: 40px;
+            right: 20px;
+        }        
+      </style>
   </head>
   <body>
-    <h1>See the output below</h1>
+    <h1>The tic-tac-toe game</h1>
+    <canvas id="drawboard" width="500" height="500"></canvas>
     <div id="log-container"></div>
     <script src="main.js"></script>
   </body>
