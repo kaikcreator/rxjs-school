@@ -1,8 +1,4 @@
-import { gameState$ } from './gameState';
-import { userMove$ } from './userMove';
-import { simulateComputerTurn, computerMove$} from './computerMove';
-import { combineLatest } from 'rxjs';
-import { tap, scan, takeWhile, startWith } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 //pure function to find out empty cells
 export const getEmptyCells = (board) =>{
@@ -37,57 +33,12 @@ const findOutWinner = board =>{
 
     return null;  
 }
-    
-//pure method to update the game state based on current click
-const updateGameState = (gameState, playersClick) =>{
-    //if no input, return current gameState (or initial)
-    if(!playersClick){
-        return gameState;
-    }
-    let updatedBoard = [...gameState.board];
-    //get move from expected player
-    const move = playersClick[gameState.nextPlayer - 1];
-    //update board with new move
-    updatedBoard[move.y][move.x] = gameState.nextPlayer;
-    //find out empty cells
-    const haveEmptyCells = getEmptyCells(updatedBoard).length == 0 ? false : true;
-    let finished = !haveEmptyCells;
-    const winner = findOutWinner(updatedBoard);
-    if(winner){
-        finished = true;
-    }
-    //return game state with updated board and updated nextPlayer
-    return {
-        board: updatedBoard,
-        nextPlayer: gameState.nextPlayer == 1 ? 2 : 1,
-        finished: finished,
-        winner: winner
-    };
+
+//initial game state
+const initialGame = {
+    board: Array(3).fill().map(() => Array(3).fill(0))
 }
+    
 
-
-//main observable with the game logic.
-export const game$ = combineLatest(userMove$, computerMove$).pipe(
-    tap( ([user, computer]) => console.log("u: ", user, " - c:", computer) ),
-    //the initial sample allows drawing the board
-    startWith(null),    
-    //update gameState (board and turn)
-    scan( updateGameState, gameState$.value ),
-    //propagate updated game state with proxy subject, so userClick can use newest state 
-    tap( state => gameState$.next(state) ),
-    //check if game is finished, and therefore complete observable(with win/lose state)
-    tap(state => {
-        if(state.finished){
-            gameState$.complete();
-        }
-    }),
-    //if the move was coming from user, then schedule computer click
-    tap((state) => {
-        if(state.nextPlayer == 2 && !state.finished){
-            simulateComputerTurn(getEmptyCells(state.board))
-        }
-    }),
-    //emit samples while not finished
-    takeWhile(({finished}) => finished == false, true),
-    tap(console.log),
-);
+//main observable with the game logic. Right now only emiting the board
+export const game$ = new Observable(obs => obs.next(initialGame));
