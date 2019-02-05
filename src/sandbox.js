@@ -1,5 +1,5 @@
 import { updateDisplay } from './utils';
-import { fromEvent, interval, merge, NEVER, EMPTY } from 'rxjs';
+import { fromEvent, interval, merge, EMPTY } from 'rxjs';
 import { mapTo, scan, takeWhile, switchMap, startWith  } from 'rxjs/operators';
 
 export default () => {
@@ -23,7 +23,7 @@ export default () => {
     /** countdown timer */
     const countdown$ = isPaused$.pipe(
         startWith(false),
-        switchMap(paused => !paused ? interval$ : /*NEVER*/ EMPTY),
+        switchMap(paused => !paused ? interval$ : EMPTY),
         scan((acc, curr) => ( curr ? curr + acc : curr ), countdownSeconds),
         takeWhile(v => v >= 0)
     );
