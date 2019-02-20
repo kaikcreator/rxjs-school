@@ -1,7 +1,6 @@
 import { canvas, CELL_SIZE } from './draw';
 import { fromEvent } from 'rxjs';
-import { map, withLatestFrom, filter } from 'rxjs/operators';
-import { gameState$ } from './gameState';
+import { map } from 'rxjs/operators';
 
 //observable with user input
 const click$ = fromEvent(canvas, 'click').pipe(
@@ -13,11 +12,10 @@ const click$ = fromEvent(canvas, 'click').pipe(
 
 //this observable return only user valid clicks
 export const userMove$ = click$.pipe(
-    withLatestFrom(gameState$),
-    //allow only clicks when it is the user turn
-    filter(([click, state]) => state.nextPlayer == 1),
-    //check that it is a valid move
-    filter(([click, state]) => state.board[click.y][click.x] == 0),
-    //return only the click value
-    map(([click, state]) => click),   
+    map(click => state => {
+        if(state.nextPlayer == 1 && state.board[click.y][click.x] == 0){
+            return click;
+        }
+        return null;
+    })
 );

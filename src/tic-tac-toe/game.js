@@ -1,8 +1,14 @@
-import { merge } from 'rxjs';
+import { merge, timer } from 'rxjs';
 import { scan, startWith, tap, takeWhile } from 'rxjs/operators';
 import { userMove$ } from './userMove';
-import { computerMove$, simulateComputerTurn } from './computerMove';
-import {gameState$} from './gameState';
+import { computerMove$, computerTurn$ } from './computerMove';
+
+const initialState = {
+    board: Array(3).fill().map(() => Array(3).fill(0)),
+    nextPlayer: 1,
+    finished: false,
+    winner: null
+};
 
 //pure function to find out empty cells
 export const getEmptyCells = (board) =>{
@@ -64,18 +70,19 @@ const updateGameState = (gameState, move) =>{
 }
     
 
-//main observable with the game logic. Right now only emiting the board
+//main observable with the game logic.
 export const game$ = merge(userMove$, computerMove$).pipe(
     //the initial sample allows drawing the board
     startWith(null),    
     //update gameState (board and turn)
-    scan( updateGameState, gameState$.value ),
-    //propagate updated game state with proxy subject, so userClick can use newest state 
-    tap( state => gameState$.next(state) ),
-    //if the move was coming from user, then schedule computer click
+    scan( (gameState, reducer) => {
+        let move = reducer != null ? reducer(gameState) : null;
+        return updateGameState(gameState, move);
+    }, initialState ),
+    //if the move was coming from user, then schedule computer turn
     tap((state) => {
         if(state.nextPlayer == 2 && !state.finished){
-            simulateComputerTurn(getEmptyCells(state.board))
+            timer(500).subscribe(()=>computerTurn$.next());
         }
     }),
     //emit samples while not finished
