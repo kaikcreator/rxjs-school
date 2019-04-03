@@ -1,6 +1,6 @@
 import { updateDisplay } from './utils';
 import { fromEvent } from 'rxjs';
-import { map, tap, pairwise } from 'rxjs/operators';
+import { map, tap, pairwise, pluck } from 'rxjs/operators';
 
 export default () => {
     /** start coding */
@@ -12,7 +12,7 @@ export default () => {
 
     //observable that returns scroll (from top) on scroll events
     const scroll$ = fromEvent(document, 'scroll').pipe(
-        map(() => docElement.scrollTop),
+        pluck('target', 'documentElement', 'scrollTop'),
         tap(evt => console.log("[scroll]: ", evt)),
         pairwise(),
         tap(([previous, current]) =>{
