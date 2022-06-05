@@ -1,20 +1,26 @@
-import { updateDisplay, displayLog } from './utils';
+/** @format */
+import { from, fromEvent } from 'rxjs';
+import { concatMap, map, mergeMap, scan, tap } from 'rxjs/operators';
+
 import { api } from './api';
-import { fromEvent } from 'rxjs';
-import { map, scan, tap, concatMap } from 'rxjs/operators';
+import { displayLog } from './utils';
+
 
 export default () => {
-    /** start coding */
-    
-    const button = document.getElementById('btn');
+	/** start coding */
 
-    /** get comments on button click */
-    fromEvent(button, 'click').pipe(
-        scan((acc, evt) => acc + 1, 0),            
-        concatMap(page => api.getCommentsList(page)),
-        map(JSON.stringify),
-        tap(console.log),
-    ).subscribe(displayLog);
+	const button = document.getElementById('btn');
 
-    /** end coding */
-}
+	/** get comments on button click */
+	fromEvent(button, 'click')
+		.pipe(
+			scan((acc, evt) => acc + 1, 0),
+			concatMap((page) => api.getCommentsList(page)),
+			mergeMap((comments) => from(comments)),
+			map(JSON.stringify),
+			tap(console.log)
+		)
+		.subscribe(displayLog);
+
+	/** end coding */
+};
